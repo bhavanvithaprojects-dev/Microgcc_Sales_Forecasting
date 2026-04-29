@@ -11,78 +11,52 @@ from src.feature_engineering import create_features
 # CONFIG
 # =========================
 DATA_PATH = "data/sales.xlsx"
-MODEL_PATH = "models/best_model.pkl"
+MODEL_DIR = "models/"
 OUTPUT_PATH = "data/future_predictions.csv"
 FORECAST_DAYS = 56  # 8 weeks
 
 # =========================
-# MAIN FUNCTION
+# CORE FORECAST FUNCTION
 # =========================
-def run_prediction(state="ALL"):
-    print("🚀 Initializing 8-Week Future Forecast...\n")
+def forecast_for_state(df, state):
 
-    # =========================
-    # LOAD DATA
-    # =========================
-    if not os.path.exists(DATA_PATH):
-        print(f"❌ Data file not found at {DATA_PATH}")
-        return
+    model_path = os.path.join(MODEL_DIR, f"{state}.pkl")
 
-    df = load_data(DATA_PATH)
-    df = fill_missing_dates(df)
-    df = fill_missing_values(df)
+    if not os.path.exists(model_path):
+        print(f"❌ Model not found for state: {state}")
+        return pd.DataFrame()
 
-    print("✅ Data loaded and preprocessed")
+    model = joblib.load(model_path)
+    print(f"✅ Loaded model for {state}")
 
-    # =========================
-    # FILTER BY STATE
-    # =========================
-    if state != "ALL":
-        df = df[df['state'] == state]
-        print(f"📍 Filtering data for state: {state}")
-    else:
-        print("🌍 Using ALL states (combined data)")
+    # Filter state data
+    state_df = df[df['state'] == state]
 
-    # =========================
-    # LOAD MODEL
-    # =========================
-    if not os.path.exists(MODEL_PATH):
-        print(f"❌ Model not found at {MODEL_PATH}. Run training first.")
-        return
-
-    model = joblib.load(MODEL_PATH)
-    print(f"✅ Model loaded from {MODEL_PATH}")
-
-    # =========================
-    # PREPARE DATA
-    # =========================
-    daily_df = df.groupby('date')['sales'].sum().reset_index()
+    # Aggregate daily
+    daily_df = state_df.groupby('date')['sales'].sum().reset_index()
 
     if daily_df.empty:
-        print("❌ No data available after filtering.")
-        return
+        print(f"⚠️ No data for state: {state}")
+        return pd.DataFrame()
 
     last_date = daily_df['date'].max()
 
-    print(f"📅 Last historical date: {last_date.date()}")
-    print(f"🔮 Forecasting next {FORECAST_DAYS} days...\n")
-
-    # =========================
-    # RECURSIVE FORECAST
-    # =========================
     forecast_results = []
     current_window = daily_df.copy()
 
     feature_cols = [
         'lag_1', 'lag_7', 'lag_30',
         'rolling_mean_7', 'rolling_std_7',
-        'day_of_week', 'month'
+        'day_of_week', 'month',
+        'is_weekend',      # ✅ added
+        'is_holiday'       # ✅ added
     ]
 
     for i in range(FORECAST_DAYS):
+
         next_date = last_date + timedelta(days=i + 1)
 
-        # Add placeholder row
+        # Add new row
         temp_row = pd.DataFrame({
             'date': [next_date],
             'sales': [np.nan]
@@ -90,20 +64,16 @@ def run_prediction(state="ALL"):
 
         current_window = pd.concat([current_window, temp_row], ignore_index=True)
 
-        # Recompute features
+        # Create features
         featured_window = create_features(current_window.copy())
 
-        # Extract features for prediction
-        x_input = featured_window.tail(1)[feature_cols]
-
-        # Handle missing values safely
-        x_input = x_input.fillna(0)
+        x_input = featured_window.tail(1)[feature_cols].fillna(0)
 
         # Predict
         prediction = model.predict(x_input)[0]
-        prediction = max(0, float(prediction))  # avoid negative values
+        prediction = max(0, float(prediction))
 
-        # Update rolling window
+        # Update window
         current_window.loc[current_window.index[-1], 'sales'] = prediction
 
         forecast_results.append({
@@ -113,29 +83,67 @@ def run_prediction(state="ALL"):
             'state': state
         })
 
-    # =========================
-    # SAVE RESULTS
-    # =========================
-    result_df = pd.DataFrame(forecast_results)
+    return pd.DataFrame(forecast_results)
 
+
+# =========================
+# MAIN FUNCTION
+# =========================
+def run_prediction(state="ALL"):
+    print("🚀 Starting Forecast...\n")
+
+    # Load data
+    if not os.path.exists(DATA_PATH):
+        print("❌ Data file not found")
+        return
+
+    df = load_data(DATA_PATH)
+    df = fill_missing_dates(df)
+    df = fill_missing_values(df)
+
+    print("✅ Data ready")
+
+    all_states = df['state'].unique()
+
+    # =========================
+    # SINGLE STATE
+    # =========================
+    if state != "ALL":
+        return forecast_for_state(df, state)
+
+    # =========================
+    # ALL STATES
+    # =========================
+    print("🌍 Running forecast for ALL states\n")
+
+    all_results = []
+
+    for s in all_states:
+        print(f"\n📍 Processing {s}")
+        state_result = forecast_for_state(df, s)
+
+        if not state_result.empty:
+            all_results.append(state_result)
+
+    if not all_results:
+        print("❌ No results generated")
+        return
+
+    final_df = pd.concat(all_results, ignore_index=True)
+
+    # =========================
+    # SAVE OUTPUT
+    # =========================
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-    result_df.to_csv(OUTPUT_PATH, index=False)
+    final_df.to_csv(OUTPUT_PATH, index=False)
 
-    print(f"\n✅ Forecast complete! Saved to {OUTPUT_PATH}")
+    print(f"\n✅ Forecast saved to {OUTPUT_PATH}")
 
-    # =========================
-    # WEEKLY SUMMARY
-    # =========================
-    print("\n📊 Weekly Forecast Summary:")
-    summary = result_df.groupby('week')['predicted_sales'].sum().reset_index()
-    print(summary.to_string(index=False))
-
-    return result_df
+    return final_df
 
 
 # =========================
 # ENTRY POINT
 # =========================
 if __name__ == "__main__":
-    # Change here for testing
-    run_prediction(state="ALL")  # or "CA", "NY", etc.
+    run_prediction("ALL")  # Change to "CA", "NY", etc.

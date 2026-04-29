@@ -8,4 +8,4 @@ tensorflow
 fastapi
 uvicorn
 joblib
-openpyxl
+openpyxlholidays

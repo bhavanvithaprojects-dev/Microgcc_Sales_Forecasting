@@ -49,27 +49,47 @@ export default function Dashboard() {
       ) : data ? (
         <>
           <div className="metric-grid">
-            <MetricCard
-              title="Total Sales"
-              value={formatCurrency(data.total_sales)}
-            />
-            <MetricCard
-              title="Forecast (Next 8 Weeks)"
-              value={formatCurrency(data.forecast_total)}
-            />
-            <MetricCard
-              title="Best Model"
-              value={data.best_model}
-            />
+            <MetricCard title="Total Sales" value={formatCurrency(data.total_sales)} />
+            <MetricCard title="Forecast (Next 8 Weeks)" value={formatCurrency(data.forecast_total)} />
+            <MetricCard title="Best Model" value={data.best_model} />
           </div>
 
-          <div className="card">
-            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '20px', color: 'var(--text-primary)' }}>
-              Sales Trend (Historical vs Forecast) - {selectedState}
-            </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '24px' }}>
+            {/* Main Chart */}
+            <div className="card">
+              <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '20px', color: 'var(--text-primary)' }}>
+                Sales Trend (Historical vs Forecast) - {selectedState}
+              </h2>
+              <div className="chart-container">
+                <SalesChart data={data.trend} />
+              </div>
+            </div>
 
-            <div className="chart-container">
-              <SalesChart data={data.trend} />
+            {/* Holidays List */}
+            <div className="card">
+              <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '20px', color: 'var(--text-primary)' }}>
+                📅 Holidays
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {data.holidays && data.holidays.length > 0 ? (
+                  data.holidays.map((h, i) => (
+                    <div key={i} style={{ 
+                      padding: '12px', 
+                      background: '#f8f9fa', 
+                      borderRadius: '8px', 
+                      borderLeft: '4px solid var(--accent)'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent)' }}>{h.date}</span>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{h.day}</span>
+                      </div>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-primary)' }}>{h.name}</div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>No holidays in the next few months.</div>
+                )}
+              </div>
             </div>
           </div>
         </>

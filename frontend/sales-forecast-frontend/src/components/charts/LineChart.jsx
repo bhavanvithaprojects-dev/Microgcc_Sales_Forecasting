@@ -38,7 +38,7 @@ export default function SalesChart({ data }) {
             width={60}
           />
           <Tooltip 
-            formatter={(value) => [`₹${value.toLocaleString()}`, "Sales"]}
+            formatter={(value) => [`₹${Math.round(value).toLocaleString()}`, "Sales"]}
             contentStyle={{ 
               backgroundColor: '#fff', 
               border: '1px solid #ddd', 
@@ -56,7 +56,7 @@ export default function SalesChart({ data }) {
             dataKey="historical"
             stroke="#007BFF"
             strokeWidth={2}
-            dot={{ r: 4, fill: '#007BFF' }}
+            dot={{ r: 4, fill: '#007BFF', strokeWidth: 0 }}
             activeDot={{ r: 6 }}
             name="Historical Sales"
           />
@@ -66,8 +66,7 @@ export default function SalesChart({ data }) {
             stroke="#6F42C1"
             strokeWidth={2}
             strokeDasharray="5 5"
-            dot={{ r: 4, fill: '#6F42C1' }}
-            activeDot={{ r: 6 }}
+            dot={false}
             name="Forecasted Trend"
           />
         </LineChart>
