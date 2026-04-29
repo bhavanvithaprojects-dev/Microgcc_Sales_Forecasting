@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Node
+node_modules/
+dist/
+.DS_Store
+
+# Data & Models
+# Keep the Excel data but ignore temporary files if needed
+# We might want to keep best_model.pkl for deployment, 
+# but large datasets are usually ignored.
+*.xlsx
+*.csv
+!data/sales.xlsx
+
+# Artifacts
+.gemini/
