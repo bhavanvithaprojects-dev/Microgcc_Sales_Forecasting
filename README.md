@@ -81,11 +81,15 @@ Microgcc/
 ---
 
 ## 🖼️ Dashboard Preview
+<img width="2741" height="1641" alt="image" src="https://github.com/user-attachments/assets/c4f167b7-dcb8-4f91-955a-da11dcc31d09" />
 
-![Dashboard Overview](C:/Users/bhava/.gemini/antigravity/brain/5d9e4538-09f4-4784-82b1-d0187d736512/media__1777379008696.png)
+
+![Dashboard Overview]
 *Historical Trend Analysis and Key Metrics*
 
-![Forecast Details](C:/Users/bhava/.gemini/antigravity/brain/5d9e4538-09f4-4784-82b1-d0187d736512/media__1777442702048.png)
+<img width="2698" height="1625" alt="image" src="https://github.com/user-attachments/assets/cbb6e6c5-5468-416e-a734-83e1c391b455" />
+
+![Forecast Details]
 *Detailed 8-Week Projected Sales Table*
 
 ---
