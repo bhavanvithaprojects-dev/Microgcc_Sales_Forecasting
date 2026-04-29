@@ -83,11 +83,11 @@ Microgcc/
 ## 🖼️ Dashboard Preview
 <img width="2728" height="1652" alt="image" src="https://github.com/user-attachments/assets/d5c8f96f-07ef-41b6-beaf-3b08f9829d0b" />
 [Dashboard Overview]
-*Historical Trend Analysis and Key Metrics*
+Historical Trend Analysis and Key Metrics
 
 <img width="2698" height="1625" alt="image" src="https://github.com/user-attachments/assets/cbb6e6c5-5468-416e-a734-83e1c391b455" />
 [Forecast Details]
-*Detailed 8-Week Projected Sales Table*
+Detailed 8-Week Projected Sales Table
 
 ---
 
