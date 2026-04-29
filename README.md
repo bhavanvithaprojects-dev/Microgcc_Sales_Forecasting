@@ -1,4 +1,4 @@
-<img width="2728" height="1652" alt="image" src="https://github.com/user-attachments/assets/c6170bb1-e983-416c-a110-eb9581de81a2" /># Sales Forecast System 📊
+# Sales Forecast System 📊
 
 A sophisticated, machine-learning-powered sales forecasting dashboard built with **React**, **FastAPI**, and **XGBoost**. This system provides real-time insights, state-wise comparative analytics, and an 8-week predictive forecast based on historical sales data.
 
